@@ -39,8 +39,8 @@ jobs:
           docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./nginx
           docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./nginx
 
-          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:fastapi-$IMAGE_TAG ./app
-          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:fastapi-latest ./app
+          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:fastapi-$IMAGE_TAG ./fastapi
+          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:fastapi-latest ./fastapi
           
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
