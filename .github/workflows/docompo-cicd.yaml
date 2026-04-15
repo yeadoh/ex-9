@@ -23,6 +23,8 @@ jobs:
         run: |
           aws s3 cp nginx/docompo.yaml s3://${{ secrets.S3_BUCKET_NAME }}/docompo.yaml
           aws s3 sync nginx/html/ s3://${{ secrets.S3_BUCKET_NAME }}/html/ --delete
+          aws s3 cp fastapi/docompo-fastapi.yaml s3://${{ secrets.S3_BUCKET_NAME }}/docompo-fastapi.yaml
+          aws s3 sync fastapi/app/ s3://${{ secrets.S3_BUCKET_NAME }}/app/ --delete
 
       - name: 4. ECR 로그인
         id: login-ecr
@@ -36,9 +38,15 @@ jobs:
         run: |
           docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./nginx
           docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./nginx
+
+          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:fastapi-$IMAGE_TAG ./app
+          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:fastapi-latest ./app
           
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:fastapi-$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:fastapi-latest
       
       - name: 6. SSM을 이용한 EC2 명령어 실행(배포)
         run: |
@@ -51,24 +59,39 @@ jobs:
               "mkdir -p /home/ec2-user/nginx/html",
               "mkdir -p /home/ec2-user/nginx/conf.d",
               "mkdir -p /home/ec2-user/nginx/logs",
+              "mkdir -p /home/ec2-user/fastapi/app",
               "chown -R ec2-user:ec2-user /home/ec2-user/nginx",
+              "chown -R ec2-user:ec2-user /home/ec2-user/fastapi",
               
               "aws s3 sync s3://${{ secrets.S3_BUCKET_NAME }}/html /home/ec2-user/nginx/html/ --delete",
               "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/docompo.yaml /home/ec2-user/nginx/docompo.yaml",
+
+              "aws s3 sync s3://${{ secrets.S3_BUCKET_NAME }}/app /home/ec2-user/fastapi/app/ --delete",
+              "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/docompo-fastapi.yaml /home/ec2-user/fastapi/docompo-fastapi.yaml",
+
               "export ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}",
               "export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}",
               "export IMAGE_TAG=${{ github.sha }}",
 
               "docker stop nginx-container",
               "docker rm nginx-container",
+              "docker stop fastapi-container",
+              "docker rm fastapi-container",
               "docker rmi -f $(docker images -q)",
 
-              "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | sudo docker login"
+              "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | sudo docker login",
 
               "cd /home/ec2-user/nginx",
               "docker compose -f docompo.yaml pull",
               "docker compose -f docompo.yaml up -d --remove-orphans",
-              "rm -f /home/ec2-user/docompo.yaml",
+              "rm -f /home/ec2-user/nginx/docompo.yaml",
               "rm -f /home/ec2-user/nginx/Dockerfile",
+              "docker image prune -f",
+
+              "cd /home/ec2-user/fastapi",
+              "docker compose -f docompo=fastapi.yaml pull",
+              "docker compose -f docompo-fastapi.yaml up -d --remove-orphans",
+              "rm -f /home/ec2-user/fastapi/docompo-fastapi.yaml",
+              "rm -f /home/ec2-user/fastapi/Dockerfile",
               "docker image prune -f"
             ]'
