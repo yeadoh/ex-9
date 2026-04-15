@@ -1,0 +1,73 @@
+name: ASG-EC2에 도커 컴포즈로 배포하는 CI/CD 파이프라인
+on:
+  push:
+    branches: ["main"]
+jobs:
+  build-and-deploy:
+    name: 빌드 및 배포
+    # GitHub Runner가 사용 할 운영체제 선택
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. 깃허브 러너(일꾼) 호출
+        uses: actions/checkout@v4
+
+      - name: 2. 자격 증명 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: 3. S3 업로드
+        run: |
+          aws s3 cp ./docompo.yaml s3://${{ secrets.S3_BUCKET_NAME }}/docompo.yaml
+          aws s3 sync ./html/ s3://${{ secrets.S3_BUCKET_NAME }}/html/ --delete
+
+      - name: 4. ECR 로그인
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: 5. 이미지 빌드 및 ECR 레포지토리 업로드
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./nginx
+          docker build --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./nginx
+          
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+      
+      - name: 6. SSM을 이용한 EC2 명령어 실행(배포)
+        run: |
+          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"
+          aws ssm send-commnad \
+            --document-name "AWS-RunShellScript" \
+            --region ${{ secrets.AWS_REGION }} \
+            --targets "Key=tag:${{ secrets.ASG_TAG_KEY }}, Values=${{ secrets.ASG_TAG_VALUES}}" \
+            --parameters 'commands=[
+              "mkdir -p /home/ec2-user/nginx/html",
+              "mkdir -p /home/ec2-user/nginx/conf.d",
+              "mkdir -p /home/ec2-user/nginx/logs",
+              "chown -R ec2-user:ec2-user /home/ec2-user/nginx",
+              
+              "aws s3 cp s3://${{S3_BUCKET_NAME}}/html /home/ec2-user/nginx/html/ --delete",
+              "aws s3 sync s3://${{S3_BUCKET_NAME}}/docompo.yaml /home/ec2-user/nginx/docompo.yaml --delete",
+
+              "export ECR_REGISTRY=${{ setps.login-ecr.outputs.registry }}",
+              "export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}",
+              "export IMAGE_TAG=${{ github.sha }}",
+
+              "docker stop nginx-container",
+              "docker rm nginx-container",
+              "docker rmi $(docker images -q)",
+
+              "cd /home/ec2-user/nginx",
+              "docker compose pull",
+              "docker compose up -d --remove-orphans",
+              "rm -f /home/ec2-user/docompo.yaml",
+              "rm -f /home/ec2-user/nginx/Dockerfile",
+              "docker image prune -f"
+            ]'

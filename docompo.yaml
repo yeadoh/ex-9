@@ -1,4 +1,18 @@
 service:
-  nginx-container:
-    build:
-      context:
+  nginx-app:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+    container_name: nginx-container
+    port:
+      - "80:80"
+    volumes:
+      - /home/ec2-user/nginx/html:/usr/share/nginx/html
+      - /home/ec2-user/nginx/logs:/var/log/nginx
+    restart: always
+    networks:
+      - public-subnet
+        aliases:
+          - nginx-svc
+
+networks:
+  public-subnet:
+    driver: bridge
