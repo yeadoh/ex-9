@@ -1,9 +1,9 @@
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-app = FastAPI(root_path="/api")
+app = FastAPI()
 # 테스트하고 싶은 ALB 경로에 맞춰 prefix만 수정하세요. (예: "/test", "/api", "/auth")
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="")
 
 @router.get("", response_class=HTMLResponse)
 async def debug_path(request: Request):
