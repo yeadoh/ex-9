@@ -1,0 +1,15 @@
+services:
+  nginx-app:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:fastapi-${IMAGE_TAG}
+    container_name: fastapi-container
+    ports:
+      - "8000:8000"
+    restart: always
+    networks:
+      public-subnet:
+        aliases:
+          - fastapi-svc
+
+networks:
+  public-subnet:
+    driver: bridge
