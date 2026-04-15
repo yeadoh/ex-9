@@ -9,7 +9,7 @@ services:
       - /home/ec2-user/nginx/logs:/var/log/nginx
     restart: always
     networks:
-      public-subnet
+      public-subnet:
         aliases:
           - nginx-svc
 
