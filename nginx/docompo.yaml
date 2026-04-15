@@ -1,15 +1,15 @@
-service:
+services:
   nginx-app:
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
     container_name: nginx-container
-    port:
+    ports:
       - "80:80"
     volumes:
       - /home/ec2-user/nginx/html:/usr/share/nginx/html
       - /home/ec2-user/nginx/logs:/var/log/nginx
     restart: always
     networks:
-      - public-subnet
+      public-subnet
         aliases:
           - nginx-svc
 
