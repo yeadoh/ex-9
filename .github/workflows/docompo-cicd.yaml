@@ -56,7 +56,7 @@ jobs:
               "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/html /home/ec2-user/nginx/html/ --delete",
               "aws s3 sync s3://${{ secrets.S3_BUCKET_NAME }}/docompo.yaml /home/ec2-user/nginx/docompo.yaml --delete",
 
-              "export ECR_REGISTRY=${{ setps.login-ecr.outputs.registry }}",
+              "export ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}",
               "export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}",
               "export IMAGE_TAG=${{ github.sha }}",
 
