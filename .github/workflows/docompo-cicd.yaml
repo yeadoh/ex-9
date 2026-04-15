@@ -79,7 +79,7 @@ jobs:
               "docker rm fastapi-container",
               "docker rmi -f $(docker images -q)",
 
-              "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | sudo docker login",
+              "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
 
               "cd /home/ec2-user/nginx",
               "docker compose -f docompo.yaml pull",
@@ -89,7 +89,7 @@ jobs:
               "docker image prune -f",
 
               "cd /home/ec2-user/fastapi",
-              "docker compose -f docompo=fastapi.yaml pull",
+              "docker compose -f docompo-fastapi.yaml pull",
               "docker compose -f docompo-fastapi.yaml up -d --remove-orphans",
               "rm -f /home/ec2-user/fastapi/docompo-fastapi.yaml",
               "rm -f /home/ec2-user/fastapi/Dockerfile",
