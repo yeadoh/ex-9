@@ -5,6 +5,8 @@ services:
     ports:
       - "8000:8000"
     restart: always
+    volumes:
+      - /home/ec2-user/fastapi/app:/app
     networks:
       public-subnet:
         aliases:
