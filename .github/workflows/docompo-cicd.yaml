@@ -43,7 +43,7 @@ jobs:
       - name: 6. SSM을 이용한 EC2 명령어 실행(배포)
         run: |
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"
-          aws ssm send-commnad \
+          aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --region ${{ secrets.AWS_REGION }} \
             --targets "Key=tag:${{ secrets.ASG_TAG_KEY }}, Values=${{ secrets.ASG_TAG_VALUES}}" \
@@ -53,7 +53,7 @@ jobs:
               "mkdir -p /home/ec2-user/nginx/logs",
               "chown -R ec2-user:ec2-user /home/ec2-user/nginx",
               
-              "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/html /home/ec2-user/nginx/html/ --delete",
+              "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/html /home/ec2-user/nginx/html/",
               "aws s3 sync s3://${{ secrets.S3_BUCKET_NAME }}/docompo.yaml /home/ec2-user/nginx/docompo.yaml --delete",
 
               "export ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}",
