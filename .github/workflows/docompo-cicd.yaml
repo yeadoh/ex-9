@@ -61,7 +61,9 @@ jobs:
 
               "docker stop nginx-container",
               "docker rm nginx-container",
-              "docker rmi $(docker images -q)",
+              "docker rmi -f $(docker images -q)",
+
+              "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | sudo docker login"
 
               "cd /home/ec2-user/nginx",
               "docker compose -f docompo.yaml pull",
