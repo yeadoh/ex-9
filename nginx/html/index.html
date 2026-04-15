@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ex-9 🐾</title>
+    <style>
+        @import url('https://googleapis.com');
+
+        body {
+            background-color: #fff5f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Gaegu', cursive;
+            cursor: pointer;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
+            z-index: 10;
+        }
+
+        .cat-emoji {
+            font-size: 80px;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .container:hover .cat-emoji {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        h1 {
+            color: #ff8fab;
+            font-size: 2.5rem;
+            margin-top: 20px;
+        }
+
+        p {
+            color: #ffb3c6;
+            font-size: 1.2rem;
+        }
+
+        /* 하트 애니메이션 스타일 */
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: #ff8fab;
+            user-select: none;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="cat-emoji">ฅ^•ﻌ•^ฅ</div>
+        <h1>안녕! 반가워요</h1>
+        <p>화면 아무 곳이나 클릭해봐!</p>
+    </div>
+
+    <script>
+        // 클릭할 때마다 하트 생성
+        document.addEventListener('click', (e) => {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = e.clientX + 'px';
+            heart.style.top = e.clientY + 'px';
+            
+            // 랜덤한 방향으로 흩어지게
+            const randomX = (Math.random() - 0.5) * 50;
+            heart.style.setProperty('--x', `${randomX}px`);
+
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
