@@ -22,7 +22,7 @@ jobs:
       - name: 3. S3 업로드
         run: |
           aws s3 cp ./docompo.yaml s3://${{ secrets.S3_BUCKET_NAME }}/docompo.yaml
-          aws s3 sync ./html/ s3://${{ secrets.S3_BUCKET_NAME }}/html/ --delete
+          aws s3 sync nginx/html/ s3://${{ secrets.S3_BUCKET_NAME }}/html/ --delete
 
       - name: 4. ECR 로그인
         id: login-ecr
