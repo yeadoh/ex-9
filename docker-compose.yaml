@@ -1,7 +1,7 @@
 services:
   # 1. Database 서비스 (MySQL)
   service-board-mysql:
-    image: yeadoh/mysql:8.0-board
+    image: yeadoh/mysql:8.0-primay
     # build:
     #   context: ./mysql # MySQL 관련 파일(Dockerfile, init.sql 등)이 있는 경로
     #   dockerfile: Dockerfile
@@ -21,7 +21,7 @@ services:
 
   # 2. Application 서비스 (FastAPI)
   service-board-fastapi:
-    image: yeadoh/fastapi:board-proxy
+    image: yeadoh/fastapi:proxy-board
     # build:
     #   context: ./fastapi # FastAPI Dockerfile이 있는 현재 경로
     #   dockerfile: Dockerfile
