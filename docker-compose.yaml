@@ -1,7 +1,7 @@
 services:
   # 1. Database 서비스 (MySQL)
   service-board-mysql:
-    image: yeadoh/mysql:8.0-primay
+    image: yeadoh/mysql:8.0-primary
     # build:
     #   context: ./mysql # MySQL 관련 파일(Dockerfile, init.sql 등)이 있는 경로
     #   dockerfile: Dockerfile
