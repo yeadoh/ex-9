@@ -13,19 +13,19 @@ services:
     networks:
       - board-network
 
-  # # docker-install (Nginx)
-  # service-docker-install:
-  #   image: yeadoh/nginx:1.29.7-docker-install
-  #   build:
-  #     context: ./docker-install
-  #     dockerfile: Dockerfile
-  #     platforms: ["linux/amd64", "linux/arm64"]
-  #   container_name: docker-install-nginx-container
-  #   restart: always
-  #   ports:
-  #     - "8081:80"
-  #   networks:
-  #     - board-network
+  # docker-install (Nginx)
+  service-docker-install:
+    image: yeadoh/nginx:1.29.7-docker-install
+    # build:
+    #   context: ./docker-install
+    #   dockerfile: Dockerfile
+    #   platforms: ["linux/amd64", "linux/arm64"]
+    container_name: docker-install-nginx-container
+    restart: always
+    ports:
+      - "8081:80"
+    networks:
+      - board-network
 
   # # docker-command (Nginx)
   # service-docker-command:
