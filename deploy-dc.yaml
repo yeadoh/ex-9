@@ -67,7 +67,7 @@ services:
     container_name: kubernetes-fastapi-container
     restart: always
     ports:
-      - "8001:80"
+      - "8001:8000"
     networks:
       - board-network
 
